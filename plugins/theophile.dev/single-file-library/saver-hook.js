@@ -15,10 +15,9 @@ exports.startup = () => {
     const { wiki } = $tw;
     const original = wiki.renderTiddler.bind(wiki);
 
-    // Using rest parameters to safely pass all arguments down
     wiki.renderTiddler = function(outputType, templateTitle, ...rest) {
         const result = original(outputType, templateTitle, ...rest);
-        
+
         const saveTemplate = (wiki.getTiddlerText(
             "$:/config/SaveWikiButton/Template",
             "$:/core/save/all"
@@ -28,7 +27,7 @@ exports.startup = () => {
             saveTemplate,
             "$:/core/save/all",
             "$:/core/save/offline-external-js",
-            "$:/plugins/tiddlywiki/tiddlyweb/save/offline",
+            "$:/plugins/tiddlywiki/tiddlyweb/save/offline"
         ]);
 
         if (saveTemplates.has(templateTitle)) {
@@ -39,6 +38,91 @@ exports.startup = () => {
             }
         }
         return result;
+    };
+
+    const endOfJsonString = (s, i) => {
+        let j = i + 1;
+        while (j < s.length) {
+            if (s[j] === "\\") {
+                j += 2;
+                continue;
+            }
+            if (s[j] === "\"") {
+                return j + 1;
+            }
+            j++;
+        }
+        return -1;
+    };
+
+    const endOfJsonObject = (s, i) => {
+        let depth = 0;
+        let j = i;
+        while (j < s.length) {
+            const c = s[j];
+            if (c === "\"") {
+                j = endOfJsonString(s, j);
+                if (j < 0) {
+                    return -1;
+                }
+                continue;
+            }
+            if (c === "{") {
+                depth++;
+            } else if (c === "}") {
+                depth--;
+                if (depth === 0) {
+                    return j + 1;
+                }
+            }
+            j++;
+        }
+        return -1;
+    };
+
+    // Walk the tiddler store and return the exact { ... } slices written by $jsontiddler.
+    const locateStoreTiddlers = (html) => {
+        const markerAt = html.indexOf("class=\"tiddlywiki-tiddler-store\"");
+        if (markerAt === -1) {
+            return [];
+        }
+        const arrayStart = html.indexOf("[", markerAt);
+        const arrayEnd = html.indexOf("]</script>", arrayStart);
+        if (arrayStart === -1 || arrayEnd === -1) {
+            return [];
+        }
+
+        const out = [];
+        let i = arrayStart + 1;
+        while (i < arrayEnd) {
+            const c = html[i];
+            if (c <= " " || c === ",") {
+                i++;
+                continue;
+            }
+            if (c !== "{") {
+                break;
+            }
+            const objEnd = endOfJsonObject(html, i);
+            if (objEnd < 0) {
+                break;
+            }
+            try {
+                const fields = JSON.parse(html.slice(i, objEnd));
+                if (fields && fields.title) {
+                    out.push({
+                        title: fields.title,
+                        fields,
+                        charStart: i,
+                        charEnd: objEnd
+                    });
+                }
+            } catch (e) {
+                // Skip malformed objects rather than aborting the index.
+            }
+            i = objEnd;
+        }
+        return out;
     };
 
     const addLibraryData = (html) => {
@@ -62,124 +146,92 @@ exports.startup = () => {
 
         const getFullLength = (str) => getUtf8ByteLength(str, 0, str.length);
 
-        // 1. Prepare bootstrap tag, but DO NOT inject it into the HTML yet.
         const bootstrap = wiki.getTiddlerText(
-            "$:/plugins/theophile.dev/single-file-library/bootstrap.js", 
+            "$:/plugins/theophile.dev/single-file-library/bootstrap.js",
             ""
         );
         const headIdx = html.indexOf("<head");
-        if (headIdx === -1) return html;
+        if (headIdx === -1) {
+            return html;
+        }
 
         const insertAt = html.indexOf(">", headIdx) + 1;
         const tag = `\n<script id="twplib-bootstrap">${bootstrap}</script>\n`;
         const tagByteLen = getFullLength(tag);
 
-        // 2. Get plugin titles from the assetList filter
         const filterStr = wiki.getTiddlerText(
-            "$:/plugins/theophile.dev/single-file-library/assetList", 
+            "$:/plugins/theophile.dev/single-file-library/assetList",
             ""
         ).trim() || "[has[plugin-type]type[application/json]]";
-        const titles = wiki.filterTiddlers(filterStr);
-
-        // Generate a 13-character timestamp for cache busting
+        const wanted = new Set(wiki.filterTiddlers(filterStr));
         const cacheHash = String(Date.now()).padStart(13, "0");
 
-        // Build empty columnar index if no plugins match the filter
-        if (titles.length === 0) {
-            const empty = JSON.stringify({ version: 1, keys: [], data: [] });
-            const scriptOpenEmpty = `\n<script type="application/json">\n`;
-            const emptyStart = getFullLength(html) + tagByteLen + getFullLength(scriptOpenEmpty);
-            const emptyEnd = emptyStart + getFullLength(empty) - 1;
-            
-            const modTagEmpty = tag
-                .replace("0000000000", String(emptyStart).padStart(10, "0"))
-                .replace("0000000000", String(emptyEnd).padStart(10, "0"))
+        const writeIndex = (indexJson) => {
+            const scriptOpen = `\n<script type="application/json">\n`;
+            const scriptClose = `\n</script>`;
+            const htmlByteLen = getFullLength(html) + tagByteLen;
+            const indexStart = htmlByteLen + getFullLength(scriptOpen);
+            const indexEnd = indexStart + getFullLength(indexJson) - 1;
+            const modifiedTag = tag
+                .replace("0000000000", String(indexStart).padStart(10, "0"))
+                .replace("0000000000", String(indexEnd).padStart(10, "0"))
                 .replace("0000000000000", cacheHash);
-            
-            return `${html.slice(0, insertAt)}${modTagEmpty}${html.slice(insertAt)}${scriptOpenEmpty}${empty}\n</script>`;
+            return `${html.slice(0, insertAt)}${modifiedTag}${html.slice(insertAt)}${scriptOpen}${indexJson}${scriptClose}`;
+        };
+
+        const emptyIndex = () => writeIndex(JSON.stringify({ version: 1, keys: [], data: [] }));
+
+        if (wanted.size === 0) {
+            return emptyIndex();
         }
 
-        // 3. For each plugin, compute its canonical JSON as written in the tiddler store
         const pluginData = {};
-        for (const title of titles) {
-            const tiddler = wiki.getTiddler(title);
-            if (!tiddler) continue;
-            
-            const fields = tiddler.getFieldStrings();
-            const json = JSON.stringify(fields).replace(/</g, "\\u003C");
-            pluginData[title] = { json, fields };
-        }
-
-        // 4. Find the character position of each plugin in the ORIGINAL HTML
         const charRanges = [];
-        const storeStart = Math.max(0, html.indexOf('class="tiddlywiki-tiddler-store"'));
-
-        for (const [title, { json }] of Object.entries(pluginData)) {
-            const idx = html.indexOf(json, storeStart);
-            if (idx === -1) {
-                console.warn("[twplib] plugin not found in store, skipping:", title);
+        for (const item of locateStoreTiddlers(html)) {
+            if (!wanted.has(item.title)) {
                 continue;
             }
-            charRanges.push({ title, charStart: idx, charEnd: idx + json.length });
+            pluginData[item.title] = { fields: item.fields };
+            charRanges.push({
+                title: item.title,
+                charStart: item.charStart,
+                charEnd: item.charEnd
+            });
         }
 
-        // 5. Convert character positions to UTF-8 byte positions (single pass)
-        // flatMap and Set cleanly handle flattening and deduplicating the array
+        if (charRanges.length === 0) {
+            return emptyIndex();
+        }
+
         const points = [...new Set([
-            0, 
-            ...charRanges.flatMap(r => [r.charStart, r.charEnd]), 
+            0,
+            ...charRanges.flatMap((r) => [r.charStart, r.charEnd]),
             html.length
         ])].sort((a, b) => a - b);
 
         const charToByte = {};
         let prevChar = 0;
         let prevByte = 0;
-        
         for (const pos of points) {
             prevByte += getUtf8ByteLength(html, prevChar, pos);
             prevChar = pos;
             charToByte[pos] = prevByte;
         }
 
-        // 6. Build columnar index
-        const rows = charRanges.map(r => {
+        const rows = charRanges.map((r) => {
             const shiftStart = r.charStart >= insertAt ? tagByteLen : 0;
             const shiftEnd = r.charEnd >= insertAt ? tagByteLen : 0;
-
-            const byteStart = charToByte[r.charStart] + shiftStart;
-            const byteEnd = charToByte[r.charEnd] - 1 + shiftEnd;
-
-            // Copy fields and remove `text` so we can easily grab the rest of the fields
             const restFields = { ...pluginData[r.title].fields };
             delete restFields.text;
-            
             return {
                 ...restFields,
-                start: byteStart,
-                end: byteEnd
+                start: charToByte[r.charStart] + shiftStart,
+                end: charToByte[r.charEnd] - 1 + shiftEnd
             };
         });
 
-        // Use Set & flatMap to extract all unique keys across all rows
         const keys = [...new Set(rows.flatMap(Object.keys))];
-
-        // Nullish coalescing provides a clean fallback to `null` if the key doesn't exist
-        const data = rows.map(e => keys.map(k => e[k] ?? null));
-
-        const indexJson = JSON.stringify({ version: 1, keys, data });
-
-        // 7. Calculate index offsets, modify bootstrap tag, and assemble output
-        const scriptOpen = `\n<script type="application/json">\n`;
-        const scriptClose = `\n</script>`;
-        const htmlByteLen = charToByte[html.length] + tagByteLen;
-        const indexStart = htmlByteLen + getFullLength(scriptOpen);
-        const indexEnd = indexStart + getFullLength(indexJson) - 1;
-
-        const modifiedTag = tag
-            .replace("0000000000", String(indexStart).padStart(10, "0"))
-            .replace("0000000000", String(indexEnd).padStart(10, "0"))
-            .replace("0000000000000", cacheHash); // Inject cache hash
-                            
-        return `${html.slice(0, insertAt)}${modifiedTag}${html.slice(insertAt)}${scriptOpen}${indexJson}${scriptClose}`;
+        const data = rows.map((e) => keys.map((k) => e[k] ?? null));
+        return writeIndex(JSON.stringify({ version: 1, keys, data }));
     };
 };
