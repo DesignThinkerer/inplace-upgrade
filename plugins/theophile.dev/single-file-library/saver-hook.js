@@ -162,7 +162,7 @@ exports.startup = () => {
         const filterStr = wiki.getTiddlerText(
             "$:/plugins/theophile.dev/single-file-library/assetList",
             ""
-        ).trim() || "[has[plugin-type]type[application/json]]";
+        ).trim() || "[has[plugin-type]type[application/json]] -[[$:/core]] -[[$:/plugins/theophile.dev/single-file-library]]";
         const wanted = new Set(wiki.filterTiddlers(filterStr));
         const cacheHash = String(Date.now()).padStart(13, "0");
 
