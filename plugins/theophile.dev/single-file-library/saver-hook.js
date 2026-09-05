@@ -19,13 +19,19 @@ exports.startup = () => {
     wiki.renderTiddler = function(outputType, templateTitle, ...rest) {
         const result = original(outputType, templateTitle, ...rest);
         
-        const templateContent = wiki.getTiddlerText(
+        const saveTemplate = (wiki.getTiddlerText(
             "$:/config/SaveWikiButton/Template",
             "$:/core/save/all"
-        );
-        const saveTemplate = (templateContent || "$:/core/save/all").trim();
+        ) || "$:/core/save/all").trim();
 
-        if (templateTitle === saveTemplate) {
+        const saveTemplates = new Set([
+            saveTemplate,
+            "$:/core/save/all",
+            "$:/core/save/offline-external-js",
+            "$:/plugins/tiddlywiki/tiddlyweb/save/offline",
+        ]);
+
+        if (saveTemplates.has(templateTitle)) {
             try {
                 return addLibraryData(result);
             } catch (e) {
