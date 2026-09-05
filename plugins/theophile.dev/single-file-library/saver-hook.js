@@ -117,7 +117,7 @@ exports.startup = () => {
                         charEnd: objEnd
                     });
                 }
-            } catch (e) {
+            } catch () {
                 // Skip malformed objects rather than aborting the index.
             }
             i = objEnd;
