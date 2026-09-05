@@ -3,7 +3,8 @@
     "plugins": [
         "tiddlywiki/jasmine",
         "tiddlywiki/tiddlyweb",
-        "theophile.dev/inplace-upgrade"
+        "theophile.dev/inplace-upgrade",
+        "theophile.dev/single-file-library"
     ],
     "themes": [
         "tiddlywiki/vanilla",

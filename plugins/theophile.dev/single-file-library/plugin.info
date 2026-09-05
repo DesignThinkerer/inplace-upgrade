@@ -1,0 +1,7 @@
+{
+    "title": "$:/plugins/theophile.dev/single-file-library",
+    "name": "Single File Library",
+    "description": "Injects library index on save",
+    "plugin-type": "plugin",
+    "version": "0.1.0"
+}
