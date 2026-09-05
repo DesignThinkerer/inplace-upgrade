@@ -1,0 +1,12 @@
+title: $:/tests/inplace-upgrade/e2e
+
+<$button class="e2e-upgrade-external tc-btn-invisible">
+Run External-Core Upgrade Test
+<$action-inplace-upgrade
+    targetUrl="/test/fixtures/empty-external-core.html"
+    filter="[[$:/SiteTitle]] [[$:/tests/inplace-upgrade/angle]]"
+    autoBackup="no"
+/>
+</$button>
+
+<div class="e2e-status">{{$:/temp/inplace-upgrade/status}}</div>

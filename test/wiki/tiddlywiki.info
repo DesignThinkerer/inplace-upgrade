@@ -1,0 +1,31 @@
+{
+    "description": "Inplace-upgrade plugin development wiki",
+    "plugins": [
+        "tiddlywiki/jasmine",
+        "tiddlywiki/tiddlyweb",
+        "theophile.dev/inplace-upgrade"
+    ],
+    "themes": [
+        "tiddlywiki/vanilla",
+        "tiddlywiki/snowwhite"
+    ],
+    "build": {
+        "index": [
+            "--output",
+            "./test/wiki/output",
+            "--rendertiddler",
+            "$:/core/save/all",
+            "index.html",
+            "text/plain"
+        ],
+        "test": [
+            "--output",
+            "./test/wiki/output",
+            "--rendertiddler",
+            "$:/core/save/all",
+            "test.html",
+            "text/plain",
+            "--test"
+        ]
+    }
+}

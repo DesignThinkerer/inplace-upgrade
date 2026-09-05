@@ -1,0 +1,21 @@
+{
+    "description": "Library wiki for inplace-upgrade plugin",
+    "plugins": [
+        "tiddlywiki/tiddlyweb",
+        "theophile.dev/inplace-upgrade"
+    ],
+    "themes": [
+        "tiddlywiki/vanilla",
+        "tiddlywiki/snowwhite"
+    ],
+    "build": {
+        "library": [
+            "--output",
+            "./dist",
+            "--rendertiddler",
+            "$:/core/save/all",
+            "library.html",
+            "text/plain"
+        ]
+    }
+}

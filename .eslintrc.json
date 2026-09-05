@@ -1,0 +1,25 @@
+{
+    "root": true,
+    "env": {
+        "browser": true,
+        "node": true,
+        "es2022": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "script"
+    },
+    "globals": {
+        "$tw": "readonly",
+        "setTimeout": "readonly",
+        "clearTimeout": "readonly"
+    },
+    "rules": {
+        "no-var": "error",
+        "prefer-const": "error",
+        "no-unused-vars": "error"
+    }
+}

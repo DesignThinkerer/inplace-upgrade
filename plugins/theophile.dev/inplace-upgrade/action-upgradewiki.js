@@ -15,6 +15,21 @@ const STORE_SELECTOR = "script.tiddlywiki-tiddler-store";
 const CORE_SELECTOR = 'script[src*="tiddlywikicore"]';
 const SAVE_NOTIFICATION_TITLE = "$:/language/Notifications/Save/Done";
 const SAVE_COMPLETION_TIMEOUT_MS = 20000;
+const URLConstructor = typeof URL === "undefined" ? require("url").URL : URL;
+
+function sanitizeJsonForScriptTag(jsonString) {
+    return jsonString.replace(/</g, "\\u003c");
+}
+
+function sanitizeSiteTitle(siteTitle) {
+    const siteTitleText = siteTitle === undefined || siteTitle === null ? "wiki" : siteTitle;
+    return siteTitleText.trim().replace(/[/\\?%*:|"<>]/g, "-") || "tiddlywiki";
+}
+
+function resolveCoreUrl(targetUrl, coreSource, baseUri) {
+    const targetUrlObject = new URLConstructor(targetUrl, baseUri);
+    return new URLConstructor(coreSource, targetUrlObject).href;
+}
 
 class InplaceUpgradeWidget extends Widget {
     render(parent) {
@@ -145,13 +160,12 @@ class InplaceUpgradeWidget extends Widget {
                 let extraConfigs = [];
 
                 if (coreScriptNode) {
-                    const targetUrlObject = new URL(targetUrl, document.baseURI);
-                    coreUrl = new URL(coreScriptNode.getAttribute("src"), targetUrlObject);
+                    coreUrl = resolveCoreUrl(targetUrl, coreScriptNode.getAttribute("src"), document.baseURI);
 
                     // The plugin's packaged coreURL macro reads this configuration tiddler.
                     extraConfigs = [{
                         title: "$:/config/inplace-upgrade/core-url",
-                        url: coreUrl.href
+                        url: coreUrl
                     }];
                 }
 
@@ -175,7 +189,7 @@ class InplaceUpgradeWidget extends Widget {
                         ? tiddlers.concat(extraConfigs)
                         : tiddlers;
 
-                    const sanitizedJson = JSON.stringify(mergedTiddlers).replace(/</g, "\\u003c");
+                    const sanitizedJson = sanitizeJsonForScriptTag(JSON.stringify(mergedTiddlers));
 
                     const newStoreNode = doc.createElement("script");
                     newStoreNode.setAttribute("class", "tiddlywiki-tiddler-store");
@@ -185,7 +199,7 @@ class InplaceUpgradeWidget extends Widget {
                     storeNode.insertAdjacentElement("afterend", newStoreNode);
 
                     if (coreNode && coreUrl) {
-                        coreNode.setAttribute("src", coreUrl.href);
+                        coreNode.setAttribute("src", coreUrl);
                     }
 
                     return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
@@ -334,7 +348,7 @@ class InplaceUpgradeWidget extends Widget {
     }
 
     getSafeSiteTitle() {
-        return $tw.wiki.getTiddlerText("$:/SiteTitle", "wiki").trim().replace(/[/\\?%*:|"<>]/g, "-") || "tiddlywiki";
+        return sanitizeSiteTitle($tw.wiki.getTiddlerText("$:/SiteTitle", "wiki"));
     }
 
     downloadBackup() {
@@ -356,3 +370,8 @@ class InplaceUpgradeWidget extends Widget {
 }
 
 exports["action-inplace-upgrade"] = InplaceUpgradeWidget;
+exports.__testHelpers = {
+    sanitizeJsonForScriptTag,
+    sanitizeSiteTitle,
+    resolveCoreUrl
+};

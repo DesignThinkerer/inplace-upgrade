@@ -1,0 +1,3 @@
+title: $:/tests/inplace-upgrade/angle
+
+<script>alert('x')</script>

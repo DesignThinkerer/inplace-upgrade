@@ -2,13 +2,17 @@
   "name": "inplace-upgrade",
   "version": "0.1.2",
   "scripts": {
-    "build": "tiddlywiki ./test/wiki --build index",
-    "test": "tiddlywiki ./test/wiki --verbose --build test",
+    "build": "TIDDLYWIKI_PLUGIN_PATH=./plugins tiddlywiki ./test/wiki --build index",
+    "test": "TIDDLYWIKI_PLUGIN_PATH=./plugins tiddlywiki ./test/wiki --verbose --build test",
     "lint": "eslint plugins",
-    "ci": "npm run lint && npm run test && npm run build"
+    "ci": "npm run lint && npm run test && npm run build",
+    "dev": "TIDDLYWIKI_PLUGIN_PATH=./plugins npx tiddlywiki ./test/wiki --listen",
+    "package": "node scripts/build.js",
+    "test:e2e": "npm run build && playwright test"
   },
   "devDependencies": {
-    "tiddlywiki": "^5.3.2",
-    "eslint": "^9.0.0"
+    "@playwright/test": "^1.63.0",
+    "eslint": "^9.0.0",
+    "tiddlywiki": "^5.3.2"
   }
 }
