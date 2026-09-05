@@ -3,6 +3,7 @@
     "plugins": [
         "tiddlywiki/jasmine",
         "tiddlywiki/tiddlyweb",
+        "tiddlywiki/github-fork-ribbon",
         "theophile.dev/inplace-upgrade",
         "theophile.dev/single-file-library"
     ],
@@ -13,7 +14,7 @@
     "build": {
         "index": [
             "--deletetiddlers",
-            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]",
+            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [prefix[$:/plugins/tiddlywiki/github-fork-ribbon]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]",
             "--setfield",
             "[[$:/DefaultTiddlers]]",
             "text",
