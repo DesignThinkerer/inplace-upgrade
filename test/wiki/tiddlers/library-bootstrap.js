@@ -1,6 +1,8 @@
+/*\
 tags: $:/tags/demo-only
 title: $:/plugins/theophile.dev/single-file-library/bootstrap.js
 type: application/javascript
+\*/
 
 (() => {
     if (!new URLSearchParams(location.search).has("twplib")) return;
