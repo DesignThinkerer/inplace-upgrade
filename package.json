@@ -8,7 +8,7 @@
     "ci": "npm run lint && npm run test && npm run build",
     "dev": "TIDDLYWIKI_PLUGIN_PATH=./plugins npx tiddlywiki ./test/wiki --listen",
     "package": "node scripts/build.js",
-    "test:e2e": "npm run build && playwright test"
+    "test:e2e": "npm run test && playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
