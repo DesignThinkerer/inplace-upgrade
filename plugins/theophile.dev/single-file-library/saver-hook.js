@@ -143,8 +143,9 @@ exports.startup = () => {
             const byteStart = charToByte[r.charStart] + shiftStart;
             const byteEnd = charToByte[r.charEnd] - 1 + shiftEnd;
 
-            // Object destructuring isolates `text` so we can easily grab the rest of the fields
-            const { text, ...restFields } = pluginData[r.title].fields;
+            // Copy fields and remove `text` so we can easily grab the rest of the fields
+            const restFields = { ...pluginData[r.title].fields };
+            delete restFields.text;
             
             return {
                 ...restFields,

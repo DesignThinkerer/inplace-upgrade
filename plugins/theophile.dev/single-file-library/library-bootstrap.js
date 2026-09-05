@@ -3,6 +3,7 @@ tags: $:/tags/demo-only
 title: $:/plugins/theophile.dev/single-file-library/bootstrap.js
 type: application/javascript
 \*/
+/* eslint-env browser */
 
 (() => {
     if (!new URLSearchParams(location.search).has("twplib")) return;
