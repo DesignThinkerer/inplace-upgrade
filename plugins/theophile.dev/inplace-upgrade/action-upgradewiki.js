@@ -142,11 +142,9 @@ class InplaceUpgradeWidget extends Widget {
                 const targetDoc = new DOMParser().parseFromString(targetHtml, "text/html");
 
                 const storeNodes = targetDoc.querySelectorAll(STORE_SELECTOR);
+
                 if (storeNodes.length === 0) {
                     throw new Error("The target URL is not a compatible TiddlyWiki HTML file (no tiddler store found).");
-                }
-                if (storeNodes.length > 1) {
-                    throw new Error("The target URL contains multiple tiddler stores; unable to determine insertion point safely.");
                 }
 
                 // 3. Analyze the external core and prepare configuration.
@@ -174,7 +172,9 @@ class InplaceUpgradeWidget extends Widget {
                 const buildUpgradedHtml = () => {
                     // Work on a fresh clone so repeated saves before reload start from the fetched shell
                     const doc = targetDoc.cloneNode(true);
-                    const storeNode = doc.querySelectorAll(STORE_SELECTOR)[0];
+                    const clonedStoreNodes = doc.querySelectorAll(STORE_SELECTOR);
+                    const storeNode = clonedStoreNodes[clonedStoreNodes.length - 1]; // Always target the last one
+                    
                     const coreNode = coreScriptNode
                         ? doc.querySelectorAll(CORE_SELECTOR)[0]
                         : null;
