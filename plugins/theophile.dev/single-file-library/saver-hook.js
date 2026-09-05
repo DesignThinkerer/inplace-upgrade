@@ -106,7 +106,11 @@ exports.startup = () => {
             if (!tiddler) continue;
             
             const fields = tiddler.getFieldStrings();
-            const json = JSON.stringify(fields).replace(/</g, "\\u003C");
+            const sortedFields = {};
+            Object.keys(fields).sort().forEach(key => {
+                sortedFields[key] = fields[key];
+            });
+            const json = JSON.stringify(sortedFields).replace(/</g, "\\u003C");
             pluginData[title] = { json, fields };
         }
 
