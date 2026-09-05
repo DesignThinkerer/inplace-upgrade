@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# TiddlyWiki build output
+test/wiki/output/
+dist/
+
+# Playwright artifacts
+playwright-report/
+test/integration/*-results/
+test-results/
