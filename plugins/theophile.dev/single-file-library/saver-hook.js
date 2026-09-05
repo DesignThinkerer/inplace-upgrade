@@ -221,6 +221,8 @@ exports.startup = () => {
             const shiftEnd = r.charEnd >= insertAt ? tagByteLen : 0;
             const restFields = { ...pluginData[r.title].fields };
             delete restFields.text;
+            delete restFields.bag;
+            delete restFields.revision;
             return {
                 ...restFields,
                 start: charToByte[r.charStart] + shiftStart,
