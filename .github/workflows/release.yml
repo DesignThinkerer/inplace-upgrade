@@ -30,8 +30,8 @@ jobs:
       - name: Verify release versions
         run: node scripts/release.js
 
-      - name: Build distributable wiki
-        run: npm run package
+      - name: Build plugin JSON
+        run: TIDDLYWIKI_PLUGIN_PATH=./plugins npx tiddlywiki ./test/wiki --output ./dist --rendertiddler "$:/plugins/theophile.dev/inplace-upgrade" "inplace-upgrade.json" "text/plain" "$:/core/templates/tiddler.json"
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2

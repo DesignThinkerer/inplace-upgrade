@@ -8,7 +8,8 @@
     "ci": "npm run lint && npm run test && npm run build",
     "dev": "TIDDLYWIKI_PLUGIN_PATH=./plugins npx tiddlywiki ./test/wiki --listen",
     "package": "node scripts/build.js",
-    "test:e2e": "npm run test && playwright test"
+    "test:e2e": "npm run test && playwright test",
+    "build:plugin": "TIDDLYWIKI_PLUGIN_PATH=./plugins npx tiddlywiki ./test/wiki --rendertiddler \"$:/plugins/theophile.dev/inplace-upgrade\" \"inplace-upgrade.json\" \"text/plain\" \"$:/core/templates/tiddler.json\""
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
