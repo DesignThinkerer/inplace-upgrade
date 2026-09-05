@@ -24,6 +24,8 @@ module.exports = [
                 DOMParser: "readonly",
                 Blob: "readonly",
                 URL: "readonly",
+                URLSearchParams: "readonly",
+                location: "readonly",
                 AbortController: "readonly",
                 confirm: "readonly",
                 alert: "readonly",
