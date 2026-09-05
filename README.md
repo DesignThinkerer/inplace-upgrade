@@ -23,6 +23,10 @@ the page.
 * Asks for explicit confirmation before making any changes, with an extra warning if backups are disabled.
 * Attempts to confirm that the save actually succeeded before offering to reload.
 
+## Demo
+
+Try the plugin in action: [designthinkerer.github.io/inplace-upgrade](https://designthinkerer.github.io/inplace-upgrade/).
+
 ## Installation
 
 1. Download the latest `library.html` from the [Releases page](https://github.com/DesignThinkerer/inplace-upgrade/releases).
