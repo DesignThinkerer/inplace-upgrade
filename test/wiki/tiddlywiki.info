@@ -12,7 +12,7 @@
     "build": {
         "index": [
             "--deletetiddlers",
-            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]]",
+            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]",
             "--setfield",
             "[[$:/DefaultTiddlers]]",
             "text",
