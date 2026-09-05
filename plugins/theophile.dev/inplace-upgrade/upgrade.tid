@@ -25,7 +25,11 @@ title: $:/plugins/theophile.dev/inplace-upgrade/upgrade
 
 \function .edition(key) [<editions>jsonget<index>,<key>]
 
-\define default-filter() [all[tiddlers]] -[prefix[$:/core]] -[prefix[$:/boot/]] -[prefix[$:/temp/]] -[prefix[$:/state/]] -[prefix[$:/HistoryList]] -[prefix[$:/StoryList]] -[[$:/config/SaveWikiButton/Template]]
+\define default-filter()
+
+[is[tiddler]] -[[$:/UpgradeLibrary]] -[[$:/plugins/tiddlywiki/upgrade]] -[prefix[$:/state/popup/]] -[[$:/HistoryList]] -[[$:/boot/boot.css]] -[type[application/javascript]library[yes]] -[[$:/boot/boot.js]] -[[$:/boot/bootprefix.js]] -[has[plugin-type]field:platform[server]] +[sort[title]]
+
+\end
 
 \function save.tiddler.filter() [{$:/config/inplace-upgrade/filter}!is[blank]else<default-filter>]
 
