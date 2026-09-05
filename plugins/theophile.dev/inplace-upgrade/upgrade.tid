@@ -29,7 +29,7 @@ title: $:/plugins/theophile.dev/inplace-upgrade/upgrade
 
 \function save.tiddler.filter() [{$:/config/inplace-upgrade/filter}!is[blank]else<default-filter>]
 
-\function target.URL() [{$:/config/inplace-upgrade/target-url}else[https://tiddlywiki.com/empty.html]]
+\function target.URL() [{$:/config/inplace-upgrade/target-url}!is[blank]else[https://tiddlywiki.com/empty.html]]
 
 \function target.caption()
 
