@@ -348,7 +348,11 @@ class InplaceUpgradeWidget extends Widget {
     }
 
     getSafeSiteTitle() {
-        return sanitizeSiteTitle($tw.wiki.getTiddlerText("$:/SiteTitle", "wiki"));
+        // Render the SiteTitle as text/plain to resolve transclusions and strip Wikitext formatting
+        const renderedTitle = $tw.wiki.renderTiddler("text/plain", "$:/SiteTitle");
+        
+        // Fall back to "wiki" if the rendered result is empty
+        return sanitizeSiteTitle(renderedTitle || "wiki");
     }
 
     downloadBackup() {
