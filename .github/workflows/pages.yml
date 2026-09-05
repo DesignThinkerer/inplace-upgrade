@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -30,6 +30,9 @@ jobs:
 
       - name: Build demo wiki
         run: npm run build
+
+      - name: Add .nojekyll to bypass Jekyll processing
+        run: touch test/wiki/output/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
