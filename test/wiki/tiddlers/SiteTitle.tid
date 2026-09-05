@@ -1,3 +1,3 @@
 title: $:/SiteTitle
 
-In-Place Upgrader
+In-Place Upgrader @@font-size:small; v<<version>> <$text text={{{ [{$:/config/SaveWikiButton/Template}match[$:/core/save/offline-external-js]then[(External Core)]] }}} />@@
