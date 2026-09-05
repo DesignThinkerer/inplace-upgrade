@@ -17,6 +17,9 @@ npm run dev
 
 This runs `npx tiddlywiki ./test/wiki --listen`.
 
+See [test/wiki/README.md](test/wiki/README.md) for how tiddlers are included in, or excluded
+from, the demo (`index.html`) and test (`test.html`) builds.
+
 ## Test and build commands
 
 - Unit tests (Jasmine via TiddlyWiki test build):
