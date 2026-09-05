@@ -117,8 +117,9 @@ exports.startup = () => {
                         charEnd: objEnd
                     });
                 }
-            } catch () {
+            } catch (e) {
                 // Skip malformed objects rather than aborting the index.
+                console.warn("Malformed JSON object in tiddler store:", e);
             }
             i = objEnd;
         }
