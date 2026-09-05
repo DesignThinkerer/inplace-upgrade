@@ -8,13 +8,17 @@ This wiki builds two different HTML files from the same `tiddlers/` folder (see
 | `index`       | `npm run build` | `test/wiki/output/index.html` | GitHub Pages demo (`.github/workflows/pages.yml`)     |
 | `test`        | `npm run test`  | `test/wiki/output/test.html`  | Jasmine unit tests + Playwright integration tests     |
 
-By default **every tiddler in `tiddlers/` ships in both builds** — the `test` target applies no
-filtering at all. Only the `index` target removes tiddlers, via a `--deletetiddlers` step that
-runs before rendering:
+By default **every tiddler in `tiddlers/` ships in both builds**. Each target removes what's
+irrelevant to it via its own `--deletetiddlers` step, which runs before rendering:
 
-```
-[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]
-```
+* `index` removes:
+  ```
+  [prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]
+  ```
+* `test` removes:
+  ```
+  [tag[$:/tags/demo-only]]
+  ```
 
 ## Add a tiddler to `test.html` only (excluded from the demo)
 
@@ -28,11 +32,12 @@ Both patterns are already used by existing tiddlers (`tiddlers/tests/test-action
 
 ## Add a tiddler to the demo (`index.html`) only (excluded from `test.html`)
 
-The `test` target has no exclusion filter, so this direction requires a `tiddlywiki.info` change:
+Tag it `$:/tags/demo-only`. The `test` target's `--deletetiddlers` step removes
+`[tag[$:/tags/demo-only]]` before rendering `test.html`, mirroring the exclusion step already used
+by the `index` target.
 
-1. Give the tiddler a distinguishing tag or title prefix (e.g. tag it `$:/tags/demo-only`).
-2. Add a `--deletetiddlers` step for that filter to the `test` build array, before its
-   `--rendertiddler` step — mirroring the step already used by the `index` target.
+Already used by the existing `tiddlers/Demo.tid`. No further `tiddlywiki.info` change is needed to
+add more demo-only tiddlers.
 
 ## Default tiddlers differ too
 
