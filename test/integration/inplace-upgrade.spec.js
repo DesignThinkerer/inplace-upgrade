@@ -20,7 +20,7 @@ test("in-place upgrade rewrites rendered save HTML", async ({ page }) => {
         await dialog.accept();
     });
 
-    await page.goto("/test/wiki/output/index.html");
+    await page.goto("/test/wiki/output/test.html");
     await expect(page.locator(".e2e-upgrade-external")).toBeVisible();
 
     await page.click(".e2e-upgrade-external");
