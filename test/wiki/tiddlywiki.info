@@ -28,6 +28,8 @@
             "text/plain"
         ],
         "test": [
+            "--deletetiddlers",
+            "[tag[$:/tags/demo-only]]",
             "--output",
             "./test/wiki/output",
             "--rendertiddler",
