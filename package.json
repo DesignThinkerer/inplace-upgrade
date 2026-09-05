@@ -1,6 +1,6 @@
 {
   "name": "inplace-upgrade",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "scripts": {
     "build": "TIDDLYWIKI_PLUGIN_PATH=./plugins tiddlywiki ./test/wiki --build index",
     "test": "TIDDLYWIKI_PLUGIN_PATH=./plugins tiddlywiki ./test/wiki --verbose --build test",
