@@ -1,7 +1,9 @@
+/*\
 tags: $:/tags/demo-only
 module-type: startup
 title: $:/plugins/theophile.dev/single-file-library/saver-hook.js
 type: application/javascript
+\*/
 
 exports.name = "twplib-saver-hook";
 exports.platforms = ["browser", "node"];
