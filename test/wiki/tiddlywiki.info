@@ -14,7 +14,7 @@
     "build": {
         "index": [
             "--deletetiddlers",
-            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [prefix[$:/plugins/tiddlywiki/github-fork-ribbon]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]",
+            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]] [prefix[$:/plugins/tiddlywiki/jasmine]] [tag[$:/tags/test-spec]] [prefix[$:/tests/]]",
             "--setfield",
             "[[$:/DefaultTiddlers]]",
             "text",
@@ -31,7 +31,7 @@
         ],
         "test": [
             "--deletetiddlers",
-            "[tag[$:/tags/demo-only]]",
+            "[tag[$:/tags/demo-only]] -[prefix[$:/plugins/tiddlywiki/github-fork-ribbon]] -[prefix[$:/plugins/theophile.dev/single-file-library]]",
             "--output",
             "./test/wiki/output",
             "--rendertiddler",
