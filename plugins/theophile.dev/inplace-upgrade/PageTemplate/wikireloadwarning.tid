@@ -1,0 +1,15 @@
+tags: $:/tags/PageTemplate
+title: $:/plugins/theophile.dev/inplace-upgrade/PageTemplate/wikireloadwarning
+
+<%if 
+[{$:/state/inplace-upgrade/status}match[reload-required]]
+[{$:/state/inplace-upgrade/status}match[unconfirmed]]
+%>
+
+<div class="tc-plugin-reload-warning">
+<$let tv-config-toolbar-class="" tv-config-toolbar-text="yes">
+<p>{{$:/temp/inplace-upgrade/status}}</p>
+</$let>
+</div>
+
+<%endif%>

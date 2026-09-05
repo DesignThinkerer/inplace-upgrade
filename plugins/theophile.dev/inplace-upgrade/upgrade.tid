@@ -1,0 +1,96 @@
+caption: Upgrade
+tags: $:/tags/ControlPanel
+title: $:/plugins/theophile.dev/inplace-upgrade/upgrade
+
+ \define editions()
+[
+  {
+    "caption": "Stable Release",
+    "url": "https://tiddlywiki.com/empty.html"
+  },
+  {
+    "caption": "Stable Release (External Core)",
+    "url": "https://tiddlywiki.com/empty-external-core.html"
+  },
+  {
+    "caption": "Prerelease",
+    "url": "https://tiddlywiki.com/prerelease/empty.html"
+  },
+  {
+    "caption": "Prerelease (External Core)",
+    "url": "https://tiddlywiki.com/prerelease/empty-external-core.html"
+  }
+]
+\end
+
+\function .edition(key) [<editions>jsonget<index>,<key>]
+
+\define default-filter() [all[tiddlers]] -[prefix[$:/core]] -[prefix[$:/boot/]] -[prefix[$:/temp/]] -[prefix[$:/state/]] -[prefix[$:/HistoryList]] -[prefix[$:/StoryList]] -[[$:/config/SaveWikiButton/Template]]
+
+\function save.tiddler.filter() [{$:/config/inplace-upgrade/filter}!is[blank]else<default-filter>]
+
+\function target.URL() [{$:/config/inplace-upgrade/target-url}else[https://tiddlywiki.com/empty.html]]
+
+\function target.caption()
+
+[<editions>jsonindexes[]] 
+:filter[<editions>jsonget{!!title},[url]match<target.URL>]
+:map[<editions>jsonget{!!title},[caption]]
+\end
+
+\define current.caption() <<version>> <%if [{$:/config/SaveWikiButton/Template}match[$:/core/save/offline-external-js]] %>(External Core)<%endif%>
+
+
+{{$:/plugins/theophile.dev/inplace-upgrade/latest-version}}
+
+<table>
+<style>
+@scope{
+display:grid;
+grid-template-columns: max-content 1fr;
+tr{grid-column:1/-1;display:grid;grid-template-columns:subgrid;}
+}
+</style>
+<tr>
+<td>
+Current Edition
+</td>
+<td>
+<strong><<current.caption>></strong>
+</td>
+</tr>
+<tr>
+<td>
+Target Edition
+</td>
+<td>
+<$select tiddler="$:/config/inplace-upgrade/target-url" default='https://tiddlywiki.com/empty.html'>
+<$list filter="[<editions>jsonindexes[]]" variable="index">
+<option value=<<.edition url>>><<.edition caption>></option>
+</$list>
+</$select>
+<p><a href=<<target.URL>> ><<target.URL>></a></p>
+</td>
+</tr>
+<tr>
+<td>
+Save Tiddler Filter
+</td>
+<td>
+  <$edit-text tiddler="$:/config/inplace-upgrade/filter" default=<<default-filter>> class="tc-edit-texteditor" tag="textarea" />
+</td>
+</tr>
+</table>
+
+<$checkbox tiddler="$:/config/inplace-upgrade/auto-backup" field="text" checked="yes" unchecked="no" default="yes">
+    <strong>Backup before upgrading</strong>
+</$checkbox>
+
+<$button class="tc-btn-invisible tc-install-plugin tc-reinstall-upgrade">
+  {{$:/core/images/download-button}} Upgrade from <<current.caption>> to <<target.caption>>
+  <$action-inplace-upgrade 
+    targetUrl=<<target.URL>>
+    filter=<<save.tiddler.filter>>
+    autoBackup={{$:/config/inplace-upgrade/auto-backup}} 
+  />
+</$button>

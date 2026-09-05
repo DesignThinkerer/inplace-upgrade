@@ -1,0 +1,69 @@
+title: $:/plugins/theophile.dev/inplace-upgrade/latest-version
+
+\import [subfilter{$:/core/config/GlobalImportFilter}]
+
+\procedure store-tw-versions-data()
+  <$action-setfield $tiddler="$:/temp/store-tw-versions-data" status=<<status>> data=<<data>>/>
+\end
+
+\procedure get-tw-versions()
+  <$action-sendmessage
+    $message="tm-http-request"
+    url="https://api.github.com/repos/TiddlyWiki/tiddlywiki.com-gh-pages/contents/prerelease"
+    bind-status="$:/temp/store-tw-versions-data/status"
+    oncompletion=<<store-tw-versions-data>>
+  />
+\end
+
+\function is.pending()
+[{$:/temp/store-tw-versions-data/status}match[pending]]
+\end
+
+\function tw.versions()
+  [[$:/temp/store-tw-versions-data]get[data]jsonindexes[]] 
+  :map[[$:/temp/store-tw-versions-data]get[data]jsonget<currentTiddler>,[name]removeprefix[tiddlywikicore-]removesuffix[.js]]
+  :filter[!is[blank]]
+\end
+
+\function tw.latest.prerelease()
+  [tw.versions[]suffix[-prerelease]last[]]
+\end
+
+\function tw.latest.stable()
+  [tw.versions[]!suffix[-prerelease]last[]]
+\end
+
+\function target.version()
+    [<tw.latest.prerelease>compare:version:gt<tw.latest.stable>else<tw.latest.stable>]
+\end
+
+\define defaultBasePath()
+./
+\end
+
+\function base.path()
+  [[$:/config/coreURL]get[base-path]else<defaultBasePath>]
+\end
+
+\function coreURL()
+  [[$(base.path)$tiddlywikicore-$(target.version)$.js]substitute[]]
+\end
+
+<<get-tw-versions>>
+
+<$tiddler tiddler="$:/temp/store-tw-versions-data">
+
+
+<$button actions=<<get-tw-versions>> >{{$:/core/images/refresh-button}} Check for updates</$button> <$checkbox tiddler=<<thisTiddler>> tag="$:/tags/StartupAction/PostRender"> Check on startup</$checkbox>
+
+
+<%if [is.pending[]] %>
+<p>Loading..</p>
+<%elseif [<tw.versions>is[blank]] %>
+<%elseif [<target.version>match<version>] %>
+<p>Your TiddlyWiki is up to date (v<<version>>).</p>
+<%else%>
+<p class="tc-message-box"><strong>Update available:</strong> TiddlyWiki v<<target.version>></p>
+<%endif%>
+
+</$tiddler>

@@ -1,0 +1,7 @@
+code-body: yes
+tags: $:/tags/Global
+title: $:/plugins/theophile.dev/inplace-upgrade/core-url
+
+\function coreURL()
+[[$:/config/inplace-upgrade/core-url]get[url]else<defaultCoreURL>]
+\end

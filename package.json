@@ -1,0 +1,14 @@
+{
+  "name": "inplace-upgrade",
+  "version": "0.1.2",
+  "scripts": {
+    "build": "tiddlywiki ./test/wiki --build index",
+    "test": "tiddlywiki ./test/wiki --verbose --build test",
+    "lint": "eslint plugins",
+    "ci": "npm run lint && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "tiddlywiki": "^5.3.2",
+    "eslint": "^9.0.0"
+  }
+}

@@ -1,0 +1,72 @@
+title: $:/plugins/theophile.dev/inplace-upgrade/readme
+
+\procedure export-btn()
+\import [[$:/plugins/theophile.dev/inplace-upgrade/upgrade]]
+<$button dragFilter=<<save.tiddler.filter>> class="tc-btn-invisible" tooltip="Export wiki to a standalone html file" message="tm-download-file" publishFilter=<<save.tiddler.filter>> filename=`${ 
+
+[{$:/SiteTitle}] 
+
+[get[modified]!sort[]first[]]
+
++[join[⏱]]
+}$`>
+{{$:/core/images/export-button}}
+</$button>
+\end
+
+In-place upgrades for single-file TiddlyWikis from the browser.
+
+This plugin can upload tiddlywiki starting from version 5.3.2. If your tiddlywiki is older, 
+<details>
+<summary>follow these steps.</summary>
+<p>
+
+# Click on this button to export your wiki: <<export-btn>>
+# Drag and drop the export in the official upgrade wizard: <iframe src="https://tiddlywiki.com/upgrade.html" style="height:500px;width:100%;border:none"/>
+# Check that the upgraded wiki works properly then manually upload it to your hosting service.
+
+</p>
+</details>
+
+!! Features
+
+* Upgrade to the latest stable release or prerelease.
+* Works with standard TiddlyWiki savers.
+* Supports external-core wikis.
+* Optionally downloads an HTML backup before upgrading.
+* Preserves edits made after an upgrade and before reloading.
+* Asks for explicit confirmation before making any changes, with an extra warning if backups are disabled.
+* Attempts to confirm that the save actually succeeded before offering to reload.
+
+!! How It Works
+
+The `$action-inplace-upgrade` widget:
+
+# Asks for confirmation before proceeding. If automatic backup is disabled, a second, more explicit warning is shown.
+# Optionally downloads an HTML backup of the complete current wiki, using its configured save template. If the backup fails to start, the upgrade is aborted.
+# Fetches the target `empty.html` shell.
+# Parses the fetched shell as an HTML document and verifies it contains exactly one tiddler store (`script.tiddlywiki-tiddler-store`). If none or more than one is found, the upgrade is aborted.
+# Exports selected source tiddlers, merges them with any required configuration (see below), escapes `<` as `\u003c`, and inserts them as a new `<script class="tiddlywiki-tiddler-store">` element immediately after the target's own store node.
+# For external-core targets, resolves the absolute core script URL from the single matching `script[src*="tiddlywikicore"]` element and injects it into `$:/config/inplace-upgrade/core-url`. The plugin's packaged `coreURL` macro reads this configuration.
+# Delivers the assembled HTML to the active saver via the standard `tm-save-wiki` mechanism.
+# Waits (up to 20 seconds) to observe the saver's own success or failure signal:
+## If a save failure is detected, the upgrade is rolled back and your original wiki is left unchanged.
+## If success is confirmed, a refresh action is shown.
+## If the outcome cannot be determined automatically (e.g. some network or download savers), you're asked to manually confirm the save completed before reloading.
+# Until reload, intercepts normal saves and rebuilds the upgraded HTML from the current tiddlers. Edits and new tiddlers made after the upgrade are therefore retained.
+
+The target's original store remains intact. During boot, TiddlyWiki loads both JSON stores in document order, so exported tiddlers override same-titled target tiddlers.
+
+!! Installation
+
+Drag and drop the plugin into your wiki, save, and reload.
+
+!! Notes
+
+Your themes and third-party plugins are exported with the selected tiddlers. A plugin incompatible with the target core can prevent the upgraded wiki from booting correctly.
+
+The widget requires a browser environment and a target URL that is accessible through `fetch()`. Remote targets must permit CORS; local `file://` wikis may require a relative target URL or a local web server.
+
+Save-completion detection relies on observing TiddlyWiki's standard success notification and failure alert. Some savers (notably certain network/upload savers) may not surface either signal in a way the widget can detect; in that case the upgrade is marked "unconfirmed" rather than assumed successful, and you should verify the save genuinely completed (e.g. via the saver's own confirmation) before using the refresh button.
+
+You will always be asked to confirm before anything is modified, and if backups are enabled, a failed backup attempt stops the whole upgrade rather than silently continuing without one.
