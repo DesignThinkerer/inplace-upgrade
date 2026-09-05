@@ -13,6 +13,11 @@
         "index": [
             "--deletetiddlers",
             "[prefix[$:/plugins/tiddlywiki/tiddlyweb]]",
+            "--setfield",
+            "[[$:/DefaultTiddlers]]",
+            "text",
+            "[[$:/plugins/theophile.dev/inplace-upgrade]]",
+            "text/vnd.tiddlywiki",
             "--output",
             "./test/wiki/output",
             "--rendertiddler",
