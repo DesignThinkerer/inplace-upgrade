@@ -11,6 +11,8 @@
     ],
     "build": {
         "index": [
+            "--deletetiddlers",
+            "[prefix[$:/plugins/tiddlywiki/tiddlyweb]]",
             "--output",
             "./test/wiki/output",
             "--rendertiddler",
