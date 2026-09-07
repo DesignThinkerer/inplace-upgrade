@@ -1,5 +1,10 @@
 # inplace-upgrade
 
+> **⚠️ Caution: Direct Tiddler Store Injection**
+> This plugin performs an in-place upgrade by injecting your current tiddlers directly into a new `empty.html` shell. Because this process bypasses TiddlyWiki's standard import pipeline, **core upgrader modules are not executed** during the upgrade. 
+> 
+> While TiddlyWiki maintains strong backward compatibility for data structures, outdated core overrides, deprecated system tiddlers, or incompatible plugins may occasionally cause unexpected behavior. **Always ensure you have a fresh backup** before running an upgrade.
+
 In-place upgrader plugin for TiddlyWiki single-file wikis.
 
 [![CI](https://github.com/DesignThinkerer/inplace-upgrade/actions/workflows/ci.yml/badge.svg)](https://github.com/DesignThinkerer/inplace-upgrade/actions/workflows/ci.yml)
